@@ -14,6 +14,7 @@ Color player_color = RED;
 float gx = 0.0;
 float gy = 2000.0;
 float dampness = 0.75;
+float jump_force = 500.0;
 
 Game fresh()
 {
@@ -27,6 +28,10 @@ Game fresh()
 
 Game update(Game game, float dt)
 {
+  if (IsKeyPressed(KEY_SPACE))
+  {
+    game.dy -= jump_force;
+  }
 
   float width = (float)GetScreenWidth();
   float height = (float)GetScreenHeight();
