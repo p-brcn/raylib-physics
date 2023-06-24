@@ -39,7 +39,6 @@ int main()
   int height = 600;
   const char *title = "Game";
   InitWindow(width, height, title);
-  SetTargetFPS(60);
 
   // Main loop
   Game game = fresh();
@@ -66,12 +65,12 @@ int main()
     }
 
     // Update and render game
-    float dt = 1.0 / 60.0;
+    float dt = 0.016f;
     UpdateFunc update = (UpdateFunc)dlsym(gameModule, "update");
     RenderFunc render = (RenderFunc)dlsym(gameModule, "render");
     if (update && render)
     {
-      game = update(game, dt);
+      game = update(game, GetFrameTime());
       render(game);
     }
 
