@@ -13,6 +13,7 @@ float player_size = 64.0;
 Color player_color = RED;
 float gx = 0.0;
 float gy = 2000.0;
+float time_scale = 2.0;
 float dampness = 0.75;
 float jump_force = 500.0;
 
@@ -39,8 +40,8 @@ Game update(Game game, float dt)
   game.dx += gx * dt;
   game.dy += gy * dt;
 
-  float nx = game.x + game.dx * dt;
-  float ny = game.y + game.dy * dt;
+  float nx = game.x + game.dx * dt * time_scale;
+  float ny = game.y + game.dy * dt * time_scale;
 
   if (nx < 0.0 || nx + player_size >= width)
   {
