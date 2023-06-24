@@ -15,25 +15,40 @@ typedef Game (*FreshFunc)();
 typedef Game (*UpdateFunc)(Game, float);
 typedef void (*RenderFunc)(Game);
 
-int main()
+const char* game_module_file_path = "./libgame.so";
+
+void* loadGameModule(FreshFunc* fresh, UpdateFunc* update, RenderFunc* render)
 {
-  // Open the game module
-  void *gameModule = dlopen("./libgame.so", RTLD_NOW | RTLD_LOCAL);
+  void* gameModule = dlopen(game_module_file_path, RTLD_NOW | RTLD_LOCAL);
   if (!gameModule)
   {
     fprintf(stderr, "Failed to open game module: %s\n", dlerror());
-    return 1;
+    return NULL;
   }
 
-  // Load the fresh function from the game module
-  FreshFunc fresh = (FreshFunc)dlsym(gameModule, "fresh");
-  if (!fresh)
+  printf("Loaded %s\n", game_module_file_path);
+
+  *fresh = (FreshFunc)dlsym(gameModule, "fresh");
+  *update = (UpdateFunc)dlsym(gameModule, "update");
+  *render = (RenderFunc)dlsym(gameModule, "render");
+
+  return gameModule;
+}
+
+int main()
+{
+  // Initialize function pointers
+  FreshFunc fresh = NULL;
+  UpdateFunc update = NULL;
+  RenderFunc render = NULL;
+
+  // Open the game module
+  void *gameModule = loadGameModule(&fresh, &update, &render);
+  if (!gameModule)
   {
-    fprintf(stderr, "Failed to get fresh function from game module: %s\n", dlerror());
-    dlclose(gameModule);
     return 1;
   }
-
+  
   // Initialize Raylib
   int width = 800;
   int height = 600;
@@ -47,27 +62,14 @@ int main()
     // Reload game module on 'R' key press
     if (IsKeyPressed(KEY_R))
     {
-      dlclose(gameModule);
-      gameModule = dlopen("./libgame.so", RTLD_NOW | RTLD_LOCAL);
+      gameModule = loadGameModule(&fresh, &update, &render);
       if (!gameModule)
       {
-        fprintf(stderr, "Failed to reload game module: %s\n", dlerror());
         return 1;
       }
-      fresh = (FreshFunc)dlsym(gameModule, "fresh");
-      if (!fresh)
-      {
-        fprintf(stderr, "Failed to get fresh function from reloaded game module: %s\n", dlerror());
-        dlclose(gameModule);
-        return 1;
-      }
-      printf("Loaded libgame.so\n");
     }
 
     // Update and render game
-    float dt = 0.016f;
-    UpdateFunc update = (UpdateFunc)dlsym(gameModule, "update");
-    RenderFunc render = (RenderFunc)dlsym(gameModule, "render");
     if (update && render)
     {
       game = update(game, GetFrameTime());
