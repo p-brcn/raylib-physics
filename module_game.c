@@ -69,5 +69,11 @@ void render(Game game)
   int h = w;
   DrawRectangle(x, y, w, h, player_color);
 
+  // FPS counter
+  int fps = GetFPS();
+  char fpsText[16];
+  snprintf(fpsText, sizeof(fpsText), "FPS: %i", fps);
+  DrawText(fpsText, 10, 10, 20, WHITE);
+
   EndDrawing();
 }
