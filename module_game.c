@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <raylib.h>
+#include "raylib.h"
 
 typedef struct Game
 {
@@ -16,6 +16,9 @@ float gy = 2000.0;
 float time_scale = 2.0;
 float dampness = 0.75;
 float jump_force = 500.0;
+float mouse_x = 0.0;
+float mouse_y = 0.0;
+float spring_fac = 100.0;
 
 Game fresh()
 {
@@ -32,6 +35,22 @@ Game update(Game game, float dt)
   if (IsKeyPressed(KEY_SPACE))
   {
     game.dy -= jump_force;
+  }
+
+  if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    mouse_x = GetMouseX();
+    mouse_y = GetMouseY();
+  }
+
+  if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+    float new_mouse_x = GetMouseX();
+    float new_mouse_y = GetMouseY();
+
+    game.dx += ((new_mouse_x - game.x) * spring_fac) * dt;
+    game.dy += ((new_mouse_y - game.y) * spring_fac*2) * dt;
+
+    mouse_x = new_mouse_x;
+    mouse_y = new_mouse_y;
   }
 
   float width = (float)GetScreenWidth();
@@ -75,11 +94,14 @@ void render(Game game)
   int h = w;
   DrawRectangle(x, y, w, h, player_color);
 
-  // FPS counter
   int fps = GetFPS();
   char fpsText[16];
   snprintf(fpsText, sizeof(fpsText), "FPS: %i", fps);
   DrawText(fpsText, 10, 10, 20, WHITE);
 
+  char mousePosText[32];
+  snprintf(mousePosText, sizeof(mousePosText), "Mouse: (%i, %i)", (int)GetMouseX(), (int)GetMouseY());
+  DrawText(mousePosText, 10, 40, 20, WHITE);
+  
   EndDrawing();
 }
