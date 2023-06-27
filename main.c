@@ -13,7 +13,7 @@ typedef struct Game
 
 typedef Game (*FreshFunc)();
 typedef Game (*UpdateFunc)(Game, float);
-typedef void (*RenderFunc)(Game);
+typedef void (*RenderFunc)(Game, float);
 
 const char* game_module_file_path = "./libgame.so";
 
@@ -62,6 +62,7 @@ int main()
     // Reload game module on 'R' key press
     if (IsKeyPressed(KEY_R))
     {
+      dlclose(gameModule);
       gameModule = loadGameModule(&fresh, &update, &render);
       if (!gameModule)
       {
@@ -70,10 +71,11 @@ int main()
     }
 
     // Update and render game
+    float dt = GetFrameTime();
     if (update && render)
     {
-      game = update(game, GetFrameTime());
-      render(game);
+      game = update(game, dt);
+      render(game, dt);
     }
 
     // End frame
