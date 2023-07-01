@@ -3,10 +3,10 @@ https://www.raylib.com/
 
 Build it!
 ```
-.\build.sh
+./build.sh
 ```
 
 Run it!
 ```
-.\main
+./main
 ```
